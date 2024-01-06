@@ -88,6 +88,9 @@
         function format(){
             let promo = document.getElementById("unformatted").value;
             promo.trim();
+            //Remove Existing Markdown
+            promo = promo.replace(/\[b\]/g, '');
+            promo = promo.replace(/\[\/b\]/g, '');
             //split promo into lines
             let lines = promo.split(/^/gm);
             //add bold tags to each line
