@@ -11,29 +11,31 @@
                 margin: 0;
                 padding: 0px;
             }
-            img {
+            img {   
                 margin: 0px;
                 padding: 0px;
                 width: 10%;
                 margin-right: 0px; 
             }
-            textarea{ 
+            textarea, #formatted{ 
                 width: 40%;
                 min-height: 25px;
-                max-height: 900px;
+                max-height: 700px;
                 font-size: 16px;
                 line-height: 1.5;
                 border: 1px solid #ccc;
                 border-radius: 4px;
                 resize: none; 
+                overflow:auto;
                 background-color: #343333;
                 color: white;
-                resize: none;
+                box-sizing: border-box;
             }
             #texts{
-                display: block;
-                text-align: center;
-                position: relative
+                display: flex;
+                text-align: left;
+                position: relative;
+                margin-left: 20%;
             }
             #btnDiv{
                 text-align: center;
@@ -49,7 +51,7 @@
                 line-height: 1.5;
                 color: white;
             }
-            @media (max-width: 768px) {
+            @media (max-width: 768px) { 
             /* Adjust the layout for smaller screens */
                 .container {
                     flex-direction: column;
@@ -70,13 +72,13 @@
             </div>
         </div>    
         <div id="texts">
-            <textarea style="font-family: arial" name="unformatted" id="unformatted" rows="50">Enter your promo here...</textarea>
+            <textarea style="font-family: arial" name="unformatted" id="unformatted" rows="50" placeholder="Enter your promo here..."></textarea>
             <!--Formatted Area-->
-            <textarea style="font-family: arial" name="formatted" id="formatted" rows="50" readonly="true">Your promo will come out formatted here...</textarea>
+            <div style="font-family: arial" name="formatted" id="formatted" rows="50" readonly="true" contenteditable="true"></div>
         </div>
         <div id="btnDiv">
             <button id="btnFormat">Format My Promo!</button>
-            <button id="btnClipboard">Copy to my Clipboard</button>
+            <button id="btnClipboard">Copy HTML to my Clipboard</button>
         </div>
 
     </body>
@@ -91,26 +93,29 @@
             //Remove Existing Markdown
             promo = promo.replace(/\[b\]/g, '');
             promo = promo.replace(/\[\/b\]/g, '');
+            promo = promo.replace(/<br\s*\/?>/gi, '');
             //split promo into lines
             let lines = promo.split(/^/gm);
             //add bold tags to each line
             for (let i = 0; i < lines.length; i++){
                if(i % 2 == 0){
                  if(lines[i].indexOf(":")==-1){
-                     lines[i]="[b]"+lines[i]+"[/b]";
+                     lines[i]="<strong>"+lines[i]+"</strong>";
                  }
                    else{
-                       lines[i]="[b]"+lines[i].substring(0,lines[i].indexOf(":")+1)+"[/b]"+lines[i].substr(lines[i].indexOf(":")+1);
+                       lines[i]="<strong>"+lines[i].substring(0,lines[i].indexOf(":")+1)+"</strong>"+lines[i].substr(lines[i].indexOf(":")+1);
                    }
                }
+                //Add Line Break to the end regardless of narration or character
+               lines[i] += "<br>";
             }     
             //display each line of the promo
-            document.getElementById("formatted").value="";
-            for(let i=0;i<lines.length;i++){ document.getElementById("formatted").value+= lines[i];            
+            document.getElementById("formatted").innerHTML="";
+            for(let i=0;i<lines.length;i++){ document.getElementById("formatted").innerHTML+= lines[i];            
                                           }
         }
         function clipboard(){
-            navigator.clipboard.writeText(document.getElementById("formatted").value);
+            navigator.clipboard.writeText(document.getElementById("formatted").innerHTML);
             alert("Copied the Text to your clipboard");
         }
     </script>
