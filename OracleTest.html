@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>OCWFed Oracle</title>
+        <!-- jQuery -->
+        <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+        <!-- DataTables CSS -->
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+        <!-- DataTables JS -->
+        <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+        <!-- DataTables Responsive -->
+        <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.js"></script>
+        <!-- Date Range Picker -->
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+        <style>
+            body {
+                font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+                margin: 0;
+                padding: 0;
+            }
+            .overflow-cell {
+                overflow: auto;
+                white-space: pre-wrap; /* This is the key to wrap text */
+                max-height: 200px; /* Adjust the value as needed */
+                word-wrap: break-word;
+            }
+            .display {
+                table-layout: fixed;
+                width: 100%;
+            }
+            th, td {
+                word-wrap: break-word;
+            }
+            #Header {
+                background-color: #333;
+                color: white;
+                text-align: center;
+                padding: 5px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                height: auto;
+                width: 100%;
+                flex-wrap: wrap;
+            }
+            #Header a {
+                text-decoration: none;
+                color: white;
+                padding: 4px 48px;
+                font-size: 24px;
+            }
+            #Header a:hover {
+                background-color: #575757;
+                border-radius: 4px;
+            }
+            #nav_bar {
+                display: flex;
+                gap: 30px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            ul {
+                list-style-type: none;
+                font-size: 20px;
+                color: white;
+            }
+            #Image_Link img {
+                width: 100%;
+                max-width: 200px;
+            }
+            @media (max-width: 600px) {
+                #Header {
+                    flex-direction: column;
+                    padding: 20px;
+                }
+                #nav_bar {
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 20px;
+                }
+                #nav_bar a {
+                    padding: 20px;
+                    font-size: 20px;
+                }
+                .display {
+                    display: block;
+                    overflow-x: auto;
+                }
+                th, td {
+                    display: block;
+                    width: 100%;
+                }
+                th input {
+                    width: 100%;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="Header">
+            <a href="#OracleTest.html" id="Image_Link">
+                <img id="Oracele_logo" src="OracleWide.png"/>
+            </a>
+            <nav id="nav_bar">
+                <a href="https://ocwfed.com/">OCWFed.com</a>
+                <a href="#MadBotMorrison.html">Mad Bot Morrison</a>
+            </nav>
+        </div>
+        <table id="Promos" class="display nowrap">
+            <thead>
+                <tr>
+                    <th style="width: 60%;">Promo<br><input type="text" placeholder="Search Promos" /></th>
+                    <th>Show<br><input type="text" placeholder="Search Links" /></th>
+                    <th>Date<br><input type="text" name="daterange" id = "daterange"/></th>
+                    <th>Page Link</th>
+                </tr>
+            </thead>
+        </table>
+<script>
+    $(document).ready(function() {
+        function initializeDataTable(){
+            return $('#Promos').DataTable({
+            order: [[2, 'desc']],
+            responsive: true,
+            "ajax": "Data.json",
+            "dom": 'lrtip',
+            "columns": [
+                { "data": "promo" },
+                { "data": "show" },
+                { "data": "date" },
+                { "data": "page_link" },
+            ],
+            initComplete: function () {
+                this.api().columns().every(function () {
+                    var column = this;
+                    $('input', column.header()).on('keyup change clear', function () {
+                        if (column.search() !== this.value) {
+                            column.search(this.value).draw();
+                        }
+                    });
+                });
+            }
+        });
+        }
+
+        var table = initializeDataTable();
+
+        // Custom filtering function for date range
+        $.fn.dataTable.ext.search.push(
+            function(settings, data, dataIndex) {
+                var min = $('#daterange').data('daterangepicker').startDate;
+                var max = $('#daterange').data('daterangepicker').endDate;
+                var date = moment(data[2], 'YYYY-MM-DD'); // Use the correct date format
+                
+                if (
+                    (!min && !max) ||
+                    (!min && date <= max) ||
+                    (min <= date && !max) ||
+                    (min <= date && date <= max)
+                ) {
+                    return true;
+                }
+                return false;
+            }
+        );
+
+        // Default dates
+        var defaultStartDate = '2004-01-01';
+        // Initialize date range picker
+        $('input[name="daterange"]').daterangepicker({
+            opens: 'left',
+            startDate: defaultStartDate,
+            locale: {
+                format: 'YYYY-MM-DD'
+            }
+        }, function(start, end, label) {
+            $('#daterange').data('daterangepicker').startDate = start;
+            $('#daterange').data('daterangepicker').endDate = end;
+            table.destroy();
+            table = initializeDataTable();
+        });
+
+        // Trigger the table draw on date range change
+        $('input[name="daterange"]').on('apply.daterangepicker', function(ev, picker) {
+            $('#daterange').data('daterangepicker').startDate = picker.startDate;
+            $('#daterange').data('daterangepicker').endDate = picker.endDate;
+            table.destroy();
+            table = initializeDataTable();
+        });
+    });
+    </script>
+    </body>
+</html>
