@@ -29,5 +29,5 @@ This project is currently deployed live [here](https://ocwfedoracle.github.io/).
 https://youtu.be/EfoL9cDlR0A
 ## License
 
-This project is licensed under the [MIT](https://choosealicense.com/licenses/mit/) License.
+This project is licensed under the MIT License.
 
